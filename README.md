@@ -18,20 +18,28 @@ hdfs dfs -mkdir -p /user/$USER/input_dir /user/$USER/output_dir
 
 1) Extract dataset directly to HDFS input_dir:
 ```bash
-python3 scripts/extract_to_hdfs.py --config config/beam-pipeline.yaml
+python3 scripts/extract_to_hdfs.py
 ```
 
-2) Run streaming (Spark Structured Streaming):
+2) Run streaming (Spark Structured Streaming, defaults to one-shot availableNow):
 ```bash
 spark-submit --master 'local[*]' \
-  scripts/stream_wordcount_spark.py \
-  --config config/beam-pipeline.yaml \
-  --available-now
+  scripts/stream_wordcount_spark.py
+```
+
+- To run continuously (watch for new files):
+```bash
+spark-submit --master 'local[*]' scripts/stream_wordcount_spark.py --continuous
+```
+
+Note: Clear the checkpoint if you want to reprocess the same data between one-shot runs:
+```bash
+hdfs dfs -rm -r <hdfs_base>/<output_dir>/_checkpoint_stream
 ```
 
 3) Or run batch (MapReduce on YARN):
 ```bash
-python3 scripts/batch_wordcount_mapreduce.py --config config/beam-pipeline.yaml
+python3 scripts/batch_wordcount_mapreduce.py
 ```
 
 Output:
@@ -40,5 +48,5 @@ Output:
 
 Optional (Beam, declarative):
 ```bash
-python3 beam/beam_wordcount.py --config config/beam-pipeline.yaml
+python3 beam/beam_wordcount.py
 ```

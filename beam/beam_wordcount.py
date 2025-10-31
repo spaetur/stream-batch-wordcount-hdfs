@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-import argparse
 import os
 import shlex
 import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, List, Tuple
+
+# Ensure project root is on sys.path so we can import common_utils
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import apache_beam as beam
 from apache_beam.options.pipeline_options import PipelineOptions
@@ -52,12 +54,7 @@ def stage_out_to_hdfs(local_output: Path, hdfs_output_path: str) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Apache Beam declarative wordcount (HDFS -> local DirectRunner -> HDFS)")
-    parser.add_argument("--config", default="config/beam-pipeline.yaml", help="Path to YAML config")
-    
-    args = parser.parse_args()
-
-    cfg: Dict = cu.load_yaml_config(args.config)
+    cfg: Dict = cu.load_yaml_config("config/beam-pipeline.yaml")
 
     hdfs_base = cfg.get("hdfs_base", "/user/%s/Big_Data/Dag2" % os.getenv("USER", "user"))
     input_dir = cfg.get("input_dir", "input_dir").strip("/")

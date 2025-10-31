@@ -5,11 +5,14 @@ import sys
 import shlex
 import subprocess
 from datetime import datetime
+from pathlib import Path
+
+# Ensure project root is on sys.path so we can import common_utils
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 import common_utils as cu
-
 
 def write_batch_to_single_output(batch_df, epoch_id: int, hdfs_output_dir: str, fernet_key: bytes, encrypt_total: bool) -> None:
     # Order, coalesce, and write a single part file, then move/rename to output.txt
@@ -37,22 +40,19 @@ def write_batch_to_single_output(batch_df, epoch_id: int, hdfs_output_dir: str, 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Streaming wordcount on HDFS using Spark Structured Streaming")
-    parser.add_argument("--config", default="config/beam-pipeline.yaml")
-    default_user = os.getenv("USER", "user")
-    parser.add_argument("--hdfs-base", default=f"hdfs://localhost:9000/user/{default_user}")
-    parser.add_argument("--input-dir", default="input_dir")
-    parser.add_argument("--output-dir", default="output_dir")
-    parser.add_argument("--available-now", action="store_true", help="Use availableNow trigger for bounded run")
+    parser.add_argument("--continuous", action="store_true", help="Run continuously (processingTime trigger) instead of one-shot availableNow")
     args = parser.parse_args()
 
-    cfg = cu.load_yaml_config(args.config)
+    cfg = cu.load_yaml_config("config/beam-pipeline.yaml")
 
-    hdfs_base = cfg.get("hdfs_base", args.hdfs_base)
-    input_dir = cfg.get("input_dir", args.input_dir)
-    output_dir = cfg.get("output_dir", args.output_dir)
-    output_filename = cfg.get("output", {}).get("filename", "output.txt")
+    default_user = os.getenv("USER", "user")
+    hdfs_base = cfg.get("hdfs_base", f"/user/{default_user}")
+    input_dir = cfg.get("input_dir", "input_dir")
+    output_dir = cfg.get("output_dir", "output_dir")
+    
     tokenize = cfg.get("tokenize", {})
     allowed_charset = tokenize.get("allowed_charset", "a-z0-9")
+    
     encrypt_total = bool(cfg.get("security", {}).get("encrypt_total_words", True))
     key_path_cfg = cfg.get("security", {}).get("fernet_key_path")
 
@@ -94,10 +94,11 @@ def main() -> int:
         .option("checkpointLocation", checkpoint)
     )
 
-    if args.available_now:
-        query = query.trigger(availableNow=True)
-    else:
+    if args.continuous:
         query = query.trigger(processingTime="2 seconds")
+    else:
+        # One-shot: process all currently available files and then exit
+        query = query.trigger(availableNow=True)
 
     active = query.start()
     active.awaitTermination()
