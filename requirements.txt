@@ -1,0 +1,4 @@
+apache-beam==2.54.0
+PyYAML>=6.0
+cryptography>=41.0.0
+

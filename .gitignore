@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+# Local env
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Beam local temp
+.beam_tmp/
+
+# Logs/outputs (keep HDFS authoritative)
+output.txt
+

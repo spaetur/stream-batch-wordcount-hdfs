@@ -1,0 +1,24 @@
+hdfs_base: /user/simun/Big_Data/Dag2
+input_dir: input_dir
+output_dir: output_dir
+
+tokenize:
+  lowercase: true
+  allowed_charset: a-z0-9
+
+pipeline:
+  # Set to a positive integer to limit output to top N words; leave null to include all
+  top_n: null
+
+output:
+  filename: output.txt
+
+security:
+  encrypt_total_words: true
+  # HDFS path to store/read the Fernet key
+  fernet_key_path: /user/simun/Big_Data/Dag2/output_dir/_fernet.key
+
+dataset:
+  url: https://github.com/FilipePires98/LargeText-WordCount/blob/main/datasets/AChristmasCarol_CharlesDickens/AChristmasCarol_CharlesDickens_English.txt?raw=1
+  filename: AChristmasCarol_CharlesDickens_English.txt
+
