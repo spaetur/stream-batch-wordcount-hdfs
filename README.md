@@ -130,3 +130,4 @@ git add -A
 git commit -m "Add Beam declarative pipeline"
 git tag v-beam-declarative-1
 ```
+# stream-batch-wordcount-hdfs
