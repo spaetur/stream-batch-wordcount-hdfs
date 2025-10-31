@@ -1,3 +1,5 @@
+# stream-batch-wordcount-hdfs
+
 ## Local Big Data WordCount (Spark Streaming + Hadoop MapReduce)
 
 ### Prerequisites (local)
@@ -130,4 +132,3 @@ git add -A
 git commit -m "Add Beam declarative pipeline"
 git tag v-beam-declarative-1
 ```
-# stream-batch-wordcount-hdfs
