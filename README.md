@@ -23,8 +23,7 @@ python3 scripts/extract_to_hdfs.py
 
 2) Run streaming (Spark Structured Streaming, defaults to one-shot availableNow):
 ```bash
-spark-submit --master 'local[*]' \
-  scripts/stream_wordcount_spark.py
+spark-submit --master 'local[*]' scripts/stream_wordcount_spark.py
 ```
 
 - To run continuously (watch for new files):
